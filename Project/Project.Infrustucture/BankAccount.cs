@@ -20,9 +20,12 @@ public class BankAccount : IBankAccount
         _balance += sum;
     }
     public void Withdraw(double sum)
-    {
+    {       
         if (sum <= 0)
             throw new ArgumentOutOfRangeException("Сумма для снятия не может быть отрицательной или равной нулю");
+
+        if (sum > _balance)
+            throw new InvalidOperationException("На балансе не достаточно средств");
 
         _balance -= sum;
     }
