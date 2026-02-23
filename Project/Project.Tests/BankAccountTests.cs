@@ -5,78 +5,90 @@ namespace Project.Tests
 {
     public class BankAccountTests
     {
-        // Withdraw с положительной суммой — баланс уменьшается
+
+        [Theory]
+        [InlineData(100)]
+        [InlineData(0.01)]
+        [InlineData(999999)]
+        public void Constructor_PositiveBalance_SetsBalanceCorrectly(double initialBalance)
+        {
+            IBankAccount bankAccount = new BankAccount(initialBalance);
+            bankAccount.GetBalance().Should().Be(initialBalance);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(-100)]
+        public void Constructor_ZeroOrNegativeBalance_ThrowsArgumentOutOfRangeException(double initialBalance)
+        {
+            Action act = () => new BankAccount(initialBalance);
+            act.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+
+        [Theory]
+        [InlineData(100, 50, 150)]
+        [InlineData(100, 0.01, 100.01)]
+        [InlineData(50, 50, 100)]
+        public void Deposit_PositiveAmount_BalanceIncreases(double initialBalance, double sum, double expectedBalance)
+        {
+            IBankAccount bankAccount = new BankAccount(initialBalance);
+            bankAccount.Deposit(sum);
+            bankAccount.GetBalance().Should().Be(expectedBalance);
+        }
+
+        [Theory]
+        [InlineData(100, 0)]
+        [InlineData(100, -1)]
+        [InlineData(100, -50)]
+        public void Deposit_ZeroOrNegativeAmount_ThrowsArgumentOutOfRangeException(double initialBalance, double sum)
+        {
+            IBankAccount bankAccount = new BankAccount(initialBalance);
+            Action act = () => bankAccount.Deposit(sum);
+            act.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+
         [Theory]
         [InlineData(100, 30, 70)]
-        [InlineData(50, 50, 0)]
-        [InlineData(30, 50, -20)]
-        public void Withdraw_PositiveAmount_BalanceDecreases(double balanceInitSum, double sum, double expectedSum)
-        {
-            IBankAccount bankAccount = new BankAccount(balanceInitSum);
-            bankAccount.Withdraw(sum);
-            var newBalance = bankAccount.GetBalance();
-            newBalance.Should().Be(expectedSum);
-        }
-
-        // Withdraw с отрицательной суммой — баланс увеличивается
-        [Theory]
-        [InlineData(100, -30, 130)]
-        [InlineData(0, -10, 10)]
-        [InlineData(50, -50, 100)]
-        public void Withdraw_NegativeAmount_BalanceIncreases(double balanceInitSum, double sum, double expectedSum)
-        {
-            IBankAccount bankAccount = new BankAccount(balanceInitSum);
-            bankAccount.Withdraw(sum);
-            var newBalance = bankAccount.GetBalance();
-            newBalance.Should().Be(expectedSum);
-        }
-
-        // Withdraw всего баланса — результат ровно 0
-        [Theory]
         [InlineData(100, 100, 0)]
-        public void Withdraw_ExactBalance_ResultsInZeroBalance(double balanceInitSum, double sum, double expectedSum) { }
-
-        // Withdraw больше баланса — уходим в минус
-
-        [Theory]
         [InlineData(100, 150, -50)]
-        public void Withdraw_MoreThanBalance_BalanceBecomesNegative(double balanceInitSum, double sum, double expectedSum) { }
-
-        // Withdraw нуля — баланс не меняется
-        [Theory]
-        [InlineData(100, 0, 100)]
-        public void Withdraw_ZeroAmount_BalanceUnchanged(double balanceInitSum, double sum, double expectedSum)
+        public void Withdraw_PositiveAmount_BalanceDecreases(double initialBalance, double sum, double expectedBalance)
         {
-            IBankAccount bankAccount = new BankAccount(balanceInitSum);
+            IBankAccount bankAccount = new BankAccount(initialBalance);
             bankAccount.Withdraw(sum);
-            var newBalance = bankAccount.GetBalance();
-            newBalance.Should().Be(expectedSum);
+            bankAccount.GetBalance().Should().Be(expectedBalance);
         }
 
-        // Deposit с отрицательной суммой — баланс уменьшается
         [Theory]
-        [InlineData(100, -30, 70)]
-        [InlineData(50, -50, 0)]
-        [InlineData(30, -50, -20)]
-        public void Deposit_NegativeAmount_BalanceDecreases(double balanceInitSum, double sum, double expectedSum)
+        [InlineData(100, 0)]
+        [InlineData(100, -1)]
+        [InlineData(100, -50)]
+        public void Withdraw_ZeroOrNegativeAmount_ThrowsArgumentOutOfRangeException(double initialBalance, double sum)
         {
-            IBankAccount bankAccount = new BankAccount(balanceInitSum);
-            bankAccount.Deposit(sum);
-            var newBalance = bankAccount.GetBalance();
-            newBalance.Should().Be(expectedSum);
+            IBankAccount bankAccount = new BankAccount(initialBalance);
+            Action act = () => bankAccount.Withdraw(sum);
+            act.Should().Throw<ArgumentOutOfRangeException>();
         }
 
-        // Deposit с положительной суммой — баланс увеличивается
-        [Theory]
-        [InlineData(100, 30, 130)]
-        [InlineData(0, 50, 50)]
-        [InlineData(50, 50, 100)]
-        public void Deposit_PositiveAmount_BalanceIncreases(double balanceInitSum, double sum, double expectedSum)
+
+        [Fact]
+        public void Deposit_ThenWithdraw_BalanceIsCorrect()
         {
-            IBankAccount bankAccount = new BankAccount(balanceInitSum);
-            bankAccount.Deposit(sum);
-            var newBalance = bankAccount.GetBalance();
-            newBalance.Should().Be(expectedSum);
-        }        
-    }
+            IBankAccount bankAccount = new BankAccount(100);
+            bankAccount.Deposit(50);  
+            bankAccount.Withdraw(30);
+            bankAccount.GetBalance().Should().Be(120);
+        }
+
+        [Fact]
+        public void Withdraw_MultipleTimes_BalanceDecreasesCorrectly()
+        {
+            IBankAccount bankAccount = new BankAccount(100);
+            bankAccount.Withdraw(20); 
+            bankAccount.Withdraw(30);
+            bankAccount.GetBalance().Should().Be(50);
+        }
+    } 
 }
