@@ -25,10 +25,16 @@
                 });
             })
             .ToArray();
-
-        Array.ForEach(threads, t => t.Start());
-        Array.ForEach(threads, t => t.Join());
-
+        try
+        {
+            Array.ForEach(threads, t => t.Start());
+            Array.ForEach(threads, t => t.Join());
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        
         Console.WriteLine("Sum of all elements: " + sum);
     }
 }
