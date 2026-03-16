@@ -3,8 +3,8 @@
 public static class Array
 {
 
-    // { array != null && array.Count > 0 } FindMax(array) { result = max(array) }
-   public static int FindMax(this IList<int> array)
+    //  {P: array != null && array.Count > 0} FindMax(array) { Q: result == Max(array) && array.Contains(result) }.
+    public static int FindMax(this IList<int> array)
    {
         if (array == null)
             throw new ArgumentNullException();
@@ -34,7 +34,7 @@ public static class Array
     //  Доказательство инварианта.
 
     // Инициализация.
-    // До начала первой итерации цикла: i = 1 и current = array[0].Проверка инварианта: 1 <= 1 <= array.Count
+    // До начала первой итерации цикла: i = 1 и current = array[0]. Проверка инварианта: 1 <= 1 <= array.Count
     // и current = Max(array[0..0]) = array[0].Инвариант истинен в начале.
 
     // Сохранение инварианта.
